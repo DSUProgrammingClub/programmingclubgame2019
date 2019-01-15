@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+//Stop players from going out of walls
+
 using namespace std;
 
 int player_x;
