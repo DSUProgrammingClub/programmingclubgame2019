@@ -1,58 +1,82 @@
-#include <iostream>
-#include <string>
-#include <cstdio>
-#include <cstdlib>
+#include "NcursesAPI/ncurses.h"
 
-using namespace std;
+static int WIDTH = 20;
+static int HEIGHT = 20;
 
-int player_x;
-int player_y;
-string map[10];
+static bool running = false;
 
-void init(){
-    for(int i=0;i<10;i++){
-        if(i == 0 || i == 9){
-            map[i] = "##########";
-        }else{
-            map[i] = "#        #";
-        }
-    }
-    player_x = 3;
-    player_y = 3;
+static int prevPlayerX;
+static int prevPlayerY;
+
+static int playerX;
+static int playerY;
+
+void init() {
+	Ncurses::init_ncurses();
+
+	playerX = 2;
+	playerY = 2;
+	prevPlayerX = 2;
+	prevPlayerY = 2;
+
+	running = true;
 }
 
-void update(){
-    char input;
-    cin >> input;
-    map[player_y][player_x] = ' ';
-    if(input == 'a'){
-        player_x--;
-    }else if(input == 'd'){
-        player_x++;
-    }else if(input == 's'){
-        player_y++;
-    }else if(input == 'w'){
-        player_y--;
-    }
-    map[player_y][player_x] = '+';
+void movePlayer(int xChange, int yChange) {
+	int newX = playerX + xChange;
+	int newY = playerY + yChange;
+
+	if (newX <= 0 || newY <= 0 || newX >= WIDTH - 1 || newY >= HEIGHT - 1) {
+		// dont move
+	} else {
+		prevPlayerX = playerX;
+		prevPlayerY = playerY;
+		playerX = newX;
+		playerY = newY;
+	}
 }
 
-void render(){
-    system("clear");
-    for(int i  = 0;i < 10;i++){
-        cout << map[i] << endl;
-    }
+void update() {
+	timeout(20);
+	int ch = getch();
+
+	switch (ch) {
+	case 'q':
+		running = false;
+		break;
+	case 'w':
+		movePlayer(0, -1);
+		break;
+	case 's':
+		movePlayer(0, 1);
+		break;
+	case 'a':
+		movePlayer(-1, 0);
+		break;
+	case 'd':
+		movePlayer(1, 0);
+		break;
+	}
 }
 
+void render(Display& display) {
+	display.DrawRectangle(0, 0, WIDTH, HEIGHT, '#', COLOR_RED, COLOR_YELLOW, false);
 
-int main(){
-    //Init board
-    init();
+	display.DrawPoint(prevPlayerX, prevPlayerY, ' ', COLOR_BLACK, COLOR_WHITE);
+	display.DrawPoint(playerX, playerY, '@', COLOR_BLACK, COLOR_WHITE);
+}
 
-    while(1){
-        render();
-        update();
-    }
+int main() {
+	init();
 
-    return 0;
+	Display main_display(WIDTH, HEIGHT);
+
+	while (running) {
+		update();
+		render(main_display);
+	}
+
+	Ncurses::exit_ncurses();
+
+	return 0;
 }
