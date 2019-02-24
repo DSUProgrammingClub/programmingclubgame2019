@@ -45,7 +45,7 @@ Display::Display() {
 }
 
 Display::Display(int width, int height) {
-	window = newwin(width, height, 0, 0);
+	window = newwin(height, width, 0, 0);
 	this->window_height = height;
 	this->window_width = width;
 	this->start_x = 0;
@@ -59,7 +59,7 @@ Display::Display(int start_x, int start_y, int width, int height) {
 	this->start_y = start_y;
 	this->window_height = height;
 	this->window_width = width;
-	window = newwin(width, height, start_y, start_x);
+	window = newwin(height, width, start_y, start_x);
 }
 
 Display::Display(Display &parent, int start_x, int start_y, int width, int height) {
